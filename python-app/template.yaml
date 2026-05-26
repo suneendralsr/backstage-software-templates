@@ -1,9 +1,11 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
+
 metadata:
   name: python-template
   title: Python flask template
   description: Provisions a minimalistic flask application
+
 spec:
   owner: development
   type: service
@@ -13,12 +15,14 @@ spec:
       required:
         - component_id
         - environment
+
       properties:
         component_id:
           title: Component name
           type: string
           description: Provide a component (microservice) name
           pattern: '^([a-zA-Z][a-zA-Z0-9]*)(-[a-zA-Z0-9]+)*$'
+
         environment:
           title: Environment
           type: string
@@ -27,6 +31,26 @@ spec:
             - dev
             - prod
 
+# -----------------------------------------------------------------------------
+# FUTURE REFERENCE - RepoUrlPicker Example
+# -----------------------------------------------------------------------------
+#  - title: Repository Details
+#    required:
+#      - repoUrl
+#    properties:
+#      repoUrl:
+#        title: Repository Location
+#        type: string
+#        ui:field: RepoUrlPicker
+#        ui:options:
+#          allowedHosts:
+#            - github.com
+#
+# Then use:
+# repoUrl: ${{ parameters.repoUrl }}
+# in the publish step.
+# -----------------------------------------------------------------------------
+
   steps:
     - id: fetch-base
       name: Fetch Base
@@ -34,17 +58,15 @@ spec:
       input:
         url: ./template
         values:
-          app_name: ${{parameters.component_id}}
-          app_env: ${{parameters.environment}}
+          app_name: ${{ parameters.component_id }}
+          app_env: ${{ parameters.environment }}
 
     - id: publish
       name: Publish
       action: publish:github
       input:
-        allowedHosts:
-          - github.com
         description: This is ${{ parameters.component_id }}
-        repoUrl: github.com?owner=suneendralsr&repo=${{parameters.component_id}}
+        repoUrl: github.com?owner=suneendralsr&repo=${{ parameters.component_id }}
         protectDefaultBranch: false
         repoVisibility: public
 
@@ -52,11 +74,13 @@ spec:
       name: Register
       action: catalog:register
       input:
-        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
         catalogInfoPath: "/catalog-info.yaml"
 
   output:
     links:
       - title: Repository
-        url: ${{ steps['publish'].output.remoteUrl }}
+        url: ${{ steps.publish.output.remoteUrl }}
 
+      - title: Open in Catalog
+        entityRef: ${{ steps.register.output.entityRef }}
