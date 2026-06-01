@@ -66,7 +66,7 @@ spec:
       action: publish:github
       input:
         description: This is ${{ parameters.component_id }}
-        repoUrl: github.com?owner=suneendralsr&repo=${{ parameters.component_id }}
+        repoUrl: github.com?owner=backstage-lsr-org&repo=${{ parameters.component_id }}
         protectDefaultBranch: false
         repoVisibility: public
 
